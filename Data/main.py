@@ -1,13 +1,10 @@
-import matplotlib.pyplot as plt
 import streamlit as st
 import numpy as np
-from sklearn.linear_model import LinearRegression
 import random
 import pandas as pd
 import time
 import plotly.express as px
 
-df = pd.read_csv("https://raw.githubusercontent.com/Lexie88rus/bank-marketing-analysis/master/bank.csv")
 
 st.set_page_config(
     page_title='Data Visualization',
@@ -17,70 +14,72 @@ st.set_page_config(
 
 st.title("Data Visualization")
 
-job_filter = st.selectbox("Select the Job", pd.unique(df['job']))
+csv_url = st.text_input("Enter the CSV file URL")
 
-placeholder = st.empty()
+if csv_url:
+    df = pd.read_csv(csv_url)
 
-df = df[df['job'] == job_filter]
+    filter_cols = st.multiselect("Select columns to filter by", options=list(df.columns))
 
-for seconds in range(200):
+    if filter_cols:
 
-    df['age_new'] = df['age'] * np.random.choice(range(1, 5))
-    df['balance_new'] = df['balance'] * np.random.choice(range(1, 5))
+        df = df[filter_cols]
+        group_col = st.selectbox("Select column to group by", options=list(df.columns))
 
-    avg_age = np.mean(df['age_new'])
+        if group_col:
+            grouped_df = df.groupby(group_col)
 
-    count_married = int(df[(df["marital"] == 'married')]['marital'].count() + np.random.choice(range(1, 30)))
+            chart_type = st.selectbox("Select chart type", options=["Bar", "Histogram", "Violin", "Line", "Box", "Scatter","Funnel", "Strip", "ECDF", "Bar Polar", "Line Polar", "Area", "Density Contour", "Density HeatMap" ])
 
-    balance = np.mean(df['balance_new'])
+            if chart_type:
+                with st.spinner("Generating chart..."):
 
-    with placeholder.container():
+                    if chart_type == "Bar":
+                        fig = px.bar(data_frame=df, x=group_col, y=np.random.rand(len(df)))
 
-        fig_col1, fig_col2 = st.columns(2)
-        fig_col3, fig_col4 = st.columns(2)
-        fig_col5, fig_col6 = st.columns(2)
-        fig_col7, fig_col8 = st.columns(2)
-        fig_col9, fig_col10 = st.columns(2)
-        with fig_col1:
-            st.markdown("### Density Chart")
-            fig = px.density_heatmap(data_frame=df, y='age_new', x='marital')
-            st.write(fig)
-        with fig_col2:
-            st.markdown("### Histogram Chart")
-            fig2 = px.histogram(data_frame=df, x='age_new')
-            st.write(fig2)
-        with fig_col3:
-            st.markdown("### Line Chart")
-            fig3 = px.line(data_frame=df, y='age_new', x='marital')
-            st.write(fig3)
-        with fig_col4:
-            st.markdown("### Bar Chart")
-            fig4 = px.bar(data_frame=df, y='age_new', x='marital')
-            st.write(fig4)
-        with fig_col5:
-            st.markdown("### Area Chart")
-            fig5 = px.area(data_frame=df, y='age_new', x='marital')
-            st.write(fig5)
-        with fig_col6:
-            st.markdown("### Funnel Chart")
-            fig6 = px.funnel(data_frame=df, y='age_new', x='marital')
-            st.write(fig6)
-        with fig_col7:
-            st.markdown("### ECDF Chart")
-            fig7 = px.ecdf(data_frame=df, y='age_new', x='marital')
-            st.write(fig7)
-        with fig_col8:
-            st.markdown("### Strip Chart")
-            fig8 = px.strip(data_frame=df, y='age_new', x='marital')
-            st.write(fig8)
-        with fig_col9:
-            st.markdown("### Violin Chart")
-            fig9 = px.violin(data_frame=df, y='age_new', x='marital')
-            st.write(fig9)
-        with fig_col10:
-            st.markdown("### Scatter Chart")
-            fig10 = px.scatter(data_frame=df, y='age_new', x='marital')
-            st.write(fig10)
-        st.markdown("### Detailed Data View")
-        st.dataframe(df)
-        time.sleep(1)
+                    elif chart_type == "Violin":
+                        fig = px.violin(data_frame=df, x=group_col, y=np.random.rand(len(df)))
+
+                    elif chart_type == "Histogram":
+                        fig = px.histogram(data_frame=df, x=group_col)
+
+                    elif chart_type == "Line":
+                        fig = px.line(data_frame=df, x=group_col, y=np.random.rand(len(df)))
+
+                    elif chart_type == "Box":
+                        fig = px.box(data_frame=df, x=group_col, y=np.random.rand(len(df)))
+
+                    elif chart_type == "Scatter":
+                        fig = px.scatter(data_frame=df, x=group_col, y=np.random.rand(len(df)))
+
+                    elif chart_type == "Funnel":
+                        fig = px.funnel(data_frame=df, x=group_col, y=np.random.rand(len(df)))
+
+                    elif chart_type == "Strip":
+                        fig = px.strip(data_frame=df, x=group_col, y=np.random.rand(len(df)))
+
+                    elif chart_type == "ECDF":
+                        fig = px.ecdf(data_frame=df, x=group_col, y=np.random.rand(len(df)))
+
+                    elif chart_type == "Bar Polar":
+                        fig = px.bar_polar(data_frame=df, r=np.random.rand(len(df)))
+
+
+                    elif chart_type == "Line Polar":
+                        fig = px.line_polar(data_frame=df, r=np.random.rand(len(df)))
+
+                    elif chart_type == "Area":
+                        fig = px.area(data_frame=df, x=group_col, y=np.random.rand(len(df)))
+
+                    elif chart_type == "Density Contour":
+                        fig = px.density_contour(data_frame=df, x=group_col, y=np.random.rand(len(df)))
+
+                    elif chart_type == "Density HeatMap":
+                        fig = px.density_heatmap(data_frame=df, x=group_col, y=np.random.rand(len(df)))
+
+
+
+                    st.plotly_chart(fig)
+
+                st.markdown("### Detailed Data View")
+                st.dataframe(df)
